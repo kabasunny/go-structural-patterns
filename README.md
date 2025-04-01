@@ -1,0 +1,1 @@
+"# go-structural-patterns" 
