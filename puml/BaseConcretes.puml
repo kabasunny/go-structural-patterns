@@ -1,0 +1,40 @@
+@startuml BaseConcretes
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package base {
+
+  ' --- Interfaces (from previous context, for clarity) ---
+  interface DoerA {
+    + DoA() string
+  }
+  interface DoerB {
+    + DoB() string
+  }
+
+  ' --- Concrete Implementations ---
+
+  ' ConcreteDoerA は DoerA の具体的な実装
+  class ConcreteDoerA {
+    ' No fields shown in Go code
+    + DoA() string
+  }
+
+  ' ConcreteDoerB は DoerB の具体的な実装
+  class ConcreteDoerB {
+    ' No fields shown in Go code
+    + DoB() string
+  }
+
+  ' --- Implementation Relationships ---
+  ' ConcreteDoerA が DoerA インターフェースを実装することを示す
+  ConcreteDoerA ..|> DoerA : implements
+
+  ' ConcreteDoerB が DoerB インターフェースを実装することを示す
+  ConcreteDoerB ..|> DoerB : implements
+
+}
+
+@enduml

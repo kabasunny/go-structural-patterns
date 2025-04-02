@@ -1,0 +1,36 @@
+@startuml ConcreteHolderPattern
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' --- Common Base Definitions (Needed for this pattern) ---
+package base <<Frame>> {
+  ' Interface DoerA (not directly used by ConcreteHolder field, but implementation exists)
+  ' interface DoerA { +DoA() string }
+  ' Interface DoerB (not directly used by ConcreteHolder field, but implementation exists)
+  ' interface DoerB { +DoB() string }
+
+  class ConcreteDoerA {
+    + DoA() string
+  }
+  class ConcreteDoerB {
+    + DoB() string
+  }
+  ' Optional: Show implementation relation if needed for context
+  ' ConcreteDoerA ..|> DoerA
+  ' ConcreteDoerB ..|> DoerB
+}
+
+' --- Pattern 1: Concrete Holder ---
+package concreteholder <<Frame>> {
+  class ConcreteHolder {
+    + A : base.ConcreteDoerA
+    + B : base.ConcreteDoerB
+  }
+  ' Aggregation relationship (has-a concrete implementation)
+  ConcreteHolder o-- base.ConcreteDoerA : A
+  ConcreteHolder o-- base.ConcreteDoerB : B
+}
+
+@enduml

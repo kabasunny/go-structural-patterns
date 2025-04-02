@@ -1,0 +1,201 @@
+Directory and File Tree:
+./
+    main.go
+    base/
+        concretes.go
+        interfaces.go
+    compositedoer/
+        composite.go
+    concreteholder/
+        holder.go
+    delegator/
+        delegator.go
+    dependencyholder/
+        holder.go
+    puml/
+
+Full File Content:
+./
+    main.go
+    package main
+    
+    import (
+    "fmt"
+    "go-structural-patterns/base"
+    "go-structural-patterns/compositedoer"
+    "go-structural-patterns/concreteholder"
+    "go-structural-patterns/delegator"
+    "go-structural-patterns/dependencyholder"
+    )
+    
+    func main() {
+    // 共通の実装を作成
+    concreteA := &base.ConcreteDoerA{}
+    concreteB := &base.ConcreteDoerB{}
+    
+    fmt.Println("--- Pattern 1: Concrete Holder ---")
+    holder1 := concreteholder.NewConcreteHolder()
+    fmt.Println(holder1.A.DoA()) // フィールド経由で呼び出し
+    
+    fmt.Println("\n--- Pattern 2: Dependency Holder ---")
+    holder2 := dependencyholder.NewDependencyHolder(concreteA, concreteB)
+    fmt.Println(holder2.A.DoA()) // フィールド経由で呼び出し
+    
+    fmt.Println("\n--- Pattern 3: Composite Implementer ---")
+    // CompositeDoer は DoerAB を実装する
+    var doerAB3 base.DoerAB = compositedoer.NewCompositeDoer(concreteA, concreteB)
+    fmt.Println(doerAB3.DoA()) // インターフェース経由で呼び出し
+    
+    fmt.Println("\n--- Pattern 4: Delegator ---")
+    // Delegator に渡すための DoerAB が必要 (例えば CompositeDoer を使う)
+    underlyingDoer := compositedoer.NewCompositeDoer(concreteA, concreteB)
+    var doerAB4 base.DoerAB = delegator.NewDelegator(underlyingDoer)
+    fmt.Println(doerAB4.DoA()) // インターフェース経由で呼び出し
+    }
+    base/
+        concretes.go
+        package base
+        
+        // --- Concrete Implementations ---
+        // ConcreteDoerA は DoerA の具体的な実装
+        type ConcreteDoerA struct{}
+        
+        func (d *ConcreteDoerA) DoA() string { return "Did A concretely" }
+        
+        // ConcreteDoerB は DoerB の具体的な実装
+        type ConcreteDoerB struct{}
+        
+        func (d *ConcreteDoerB) DoB() string { return "Did B concretely" }
+        interfaces.go
+        package base
+        
+        // --- Interfaces ---
+        // DoerA はAの操作を行うインターフェース
+        type DoerA interface {
+        DoA() string
+        }
+        
+        // DoerB はBの操作を行うインターフェース
+        type DoerB interface {
+        DoB() string
+        }
+        
+        // DoerAB はAとB両方の操作を行うインターフェース
+        type DoerAB interface {
+        DoerA
+        DoerB
+        }
+    compositedoer/
+        composite.go
+        package compositedoer
+        
+        import "go-structural-patterns/base"
+        
+        // --- Pattern 3: Composite Implementer ---
+        
+        // CompositeDoer は複数のインターフェースを保持し、自身もインターフェースを実装する構造体
+        type CompositeDoer struct {
+        delegateA base.DoerA // 内部で保持するインターフェース (非公開でも良い)
+        delegateB base.DoerB
+        }
+        
+        // NewCompositeDoer は CompositeDoer のインスタンスを生成する
+        func NewCompositeDoer(a base.DoerA, b base.DoerB) *CompositeDoer {
+        return &CompositeDoer{
+        delegateA: a,
+        delegateB: b,
+        }
+        }
+        
+        // CompositeDoer が DoerA インターフェースを実装 (委譲)
+        func (c *CompositeDoer) DoA() string {
+        return c.delegateA.DoA() // 処理を内部のdelegateAに委譲
+        }
+        
+        // CompositeDoer が DoerB インターフェースを実装 (委譲)
+        func (c *CompositeDoer) DoB() string {
+        return c.delegateB.DoB() // 処理を内部のdelegateBに委譲
+        }
+        
+        // コンパイル時に DoerAB を満たしているかチェック (任意)
+        var _ base.DoerAB = (*CompositeDoer)(nil)
+    concreteholder/
+        holder.go
+        package concreteholder
+        
+        import "go-structural-patterns/base"
+        
+        // --- Pattern 1: Concrete Holder ---
+        
+        // ConcreteHolder は具象型を直接保持する構造体
+        type ConcreteHolder struct {
+        A base.ConcreteDoerA // 具体的な実装をフィールドに持つ
+        B base.ConcreteDoerB
+        }
+        
+        // NewConcreteHolder は ConcreteHolder のインスタンスを生成する
+        func NewConcreteHolder() *ConcreteHolder {
+        return &ConcreteHolder{
+        A: base.ConcreteDoerA{},
+        B: base.ConcreteDoerB{},
+        }
+        }
+        
+        // Note: ConcreteHolder自体はDoerABインターフェースを実装しない
+        //       フィールドアクセスでメソッドを呼び出す: holder.A.DoA()
+    delegator/
+        delegator.go
+        package delegator
+        
+        import "go-structural-patterns/base"
+        
+        // --- Pattern 4: Delegator ---
+        
+        // Delegator は単一のインターフェースに処理を委譲する構造体
+        type Delegator struct {
+        delegate base.DoerAB // 委譲先のインターフェース
+        }
+        
+        // NewDelegator は Delegator のインスタンスを生成する
+        func NewDelegator(ab base.DoerAB) *Delegator {
+        return &Delegator{delegate: ab}
+        }
+        
+        // Delegator が DoerA インターフェースを実装 (委譲)
+        func (d *Delegator) DoA() string {
+        return d.delegate.DoA() // 処理を内部のdelegateに委譲
+        }
+        
+        // Delegator が DoerB インターフェースを実装 (委譲)
+        func (d *Delegator) DoB() string {
+        return d.delegate.DoB() // 処理を内部のdelegateに委譲
+        }
+        
+        // コンパイル時に DoerAB を満たしているかチェック (任意)
+        var _ base.DoerAB = (*Delegator)(nil)
+    dependencyholder/
+        holder.go
+        package dependencyholder
+        
+        import "go-structural-patterns/base"
+        
+        // --- Pattern 2: Dependency Holder ---
+        
+        // DependencyHolder はインターフェース型をフィールドとして持つ構造体
+        type DependencyHolder struct {
+        A base.DoerA // インターフェース型をフィールドに持つ
+        B base.DoerB
+        }
+        
+        // NewDependencyHolder は DependencyHolder のインスタンスを生成する
+        // 依存性（インターフェースを満たす実装）を外部から注入する
+        func NewDependencyHolder(a base.DoerA, b base.DoerB) *DependencyHolder {
+        return &DependencyHolder{
+        A: a,
+        B: b,
+        }
+        }
+        
+        // Note: DependencyHolder自体はDoerABインターフェースを実装しない
+        //       フィールドアクセスでメソッドを呼び出す: holder.A.DoA()
+    puml/

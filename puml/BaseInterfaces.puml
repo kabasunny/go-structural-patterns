@@ -1,0 +1,29 @@
+@startuml BaseInterfaces
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package base {
+  ' DoerA はAの操作を行うインターフェース
+  interface DoerA {
+    + DoA() string
+  }
+
+  ' DoerB はBの操作を行うインターフェース
+  interface DoerB {
+    + DoB() string
+  }
+
+  ' DoerAB はAとB両方の操作を行うインターフェース
+  ' Goのインターフェース埋め込みをUMLの継承(Generalization)で表現
+  interface DoerAB extends DoerA, DoerB {
+    ' DoerA と DoerB のメソッドが暗黙的に含まれる
+  }
+
+  ' 代替表現 (矢印を使う場合)
+  ' DoerAB --|> DoerA
+  ' DoerAB --|> DoerB
+}
+
+@enduml

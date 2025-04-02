@@ -1,0 +1,43 @@
+@startuml DependencyHolderPattern
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' --- Common Base Definitions (Needed for this pattern) ---
+package base <<Frame>> {
+  interface DoerA {
+    + DoA() string
+  }
+  interface DoerB {
+    + DoB() string
+  }
+
+  ' Concrete implementations (needed to fulfill the interface dependency)
+  class ConcreteDoerA {
+    + DoA() string
+  }
+  class ConcreteDoerB {
+    + DoB() string
+  }
+  ConcreteDoerA ..|> DoerA : implements
+  ConcreteDoerB ..|> DoerB : implements
+}
+
+' --- Pattern 2: Dependency Holder ---
+package dependencyholder <<Frame>> {
+  class DependencyHolder {
+    + A : base.DoerA  ' Holds the interface type
+    + B : base.DoerB  ' Holds the interface type
+  }
+  ' Aggregation relationship (has-a interface)
+  DependencyHolder o-- base.DoerA : A
+  DependencyHolder o-- base.DoerB : B
+}
+
+' Example Usage/Dependency (Optional, shows how implementations are injected)
+' SomeClient -> DependencyHolder : uses
+' SomeClient --> ConcreteDoerA : creates/injects
+' SomeClient --> ConcreteDoerB : creates/injects
+
+@enduml

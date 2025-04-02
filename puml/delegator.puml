@@ -1,0 +1,46 @@
+@startuml DelegatorPattern
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' --- Common Base Definitions (Needed for this pattern) ---
+package base <<Frame>> {
+  interface DoerA {
+    + DoA() string
+  }
+  interface DoerB {
+    + DoB() string
+  }
+  ' Interface composition
+  interface DoerAB extends DoerA, DoerB {
+  }
+
+  ' Example implementation of DoerAB (e.g., CompositeDoer or another concrete type)
+  ' This is needed as the source for the delegate field
+  class ExampleDoerAB {
+     + DoA() string
+     + DoB() string
+  }
+  ExampleDoerAB ..|> DoerAB : implements
+}
+
+' --- Pattern 4: Delegator ---
+package delegator <<Frame>> {
+  class Delegator {
+    - delegate : base.DoerAB  ' Holds the combined interface
+    + DoA() string  ' Implements DoerA method via delegation
+    + DoB() string  ' Implements DoerB method via delegation
+  }
+  ' Aggregation relationship (has-a combined interface for delegation)
+  Delegator o-- base.DoerAB : delegate
+
+  ' Implementation relationship (implements the combined interface)
+  Delegator ..|> base.DoerAB : implements
+}
+
+' Example Usage/Dependency (Optional)
+' SomeClient -> Delegator : uses (as DoerAB)
+' SomeClient --> ExampleDoerAB : creates/injects
+
+@enduml

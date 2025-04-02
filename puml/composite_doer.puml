@@ -1,0 +1,51 @@
+@startuml CompositeDoerPattern
+
+' スタイル設定 (任意)
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+' --- Common Base Definitions (Needed for this pattern) ---
+package base <<Frame>> {
+  interface DoerA {
+    + DoA() string
+  }
+  interface DoerB {
+    + DoB() string
+  }
+  ' Interface composition
+  interface DoerAB extends DoerA, DoerB {
+  }
+
+  ' Concrete implementations (needed to fulfill the interface dependency)
+  class ConcreteDoerA {
+    + DoA() string
+  }
+  class ConcreteDoerB {
+    + DoB() string
+  }
+  ConcreteDoerA ..|> DoerA : implements
+  ConcreteDoerB ..|> DoerB : implements
+}
+
+' --- Pattern 3: Composite Implementer ---
+package compositedoer <<Frame>> {
+  class CompositeDoer {
+    - delegateA : base.DoerA
+    - delegateB : base.DoerB
+    + DoA() string  ' Implements DoerA method
+    + DoB() string  ' Implements DoerB method
+  }
+  ' Aggregation relationship (has-a interface for delegation)
+  CompositeDoer o-- base.DoerA : delegateA
+  CompositeDoer o-- base.DoerB : delegateB
+
+  ' Implementation relationship (implements the combined interface)
+  CompositeDoer ..|> base.DoerAB : implements
+}
+
+' Example Usage/Dependency (Optional)
+' SomeClient -> CompositeDoer : uses (as DoerAB)
+' SomeClient --> ConcreteDoerA : creates/injects
+' SomeClient --> ConcreteDoerB : creates/injects
+
+@enduml
